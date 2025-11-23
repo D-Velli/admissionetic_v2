@@ -20,7 +20,7 @@ venv_*/
 # ---- Config & environnements ----
 .env
 .env.*
-.env_*
+.env*
 !.env.example
 
 # ---- Logs & runtime ----
