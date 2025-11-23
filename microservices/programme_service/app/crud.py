@@ -1,13 +1,24 @@
+from typing import List, Optional
+
 from sqlalchemy.orm import Session
+
 from . import models, schemas
 
-# ------------ Programme ------------
 
-def get_programmes(db: Session):
-    return db.query(models.Programme).all()
+# ===================== PROGRAMMES =====================
+
+def get_programmes(db: Session, skip: int = 0, limit: int = 100) -> List[models.Programme]:
+    """Liste paginée des programmes."""
+    return (
+        db.query(models.Programme)
+        .offset(skip)
+        .limit(limit)
+        .all()
+    )
 
 
-def get_programme(db: Session, programme_id: int):
+def get_programme(db: Session, programme_id: int) -> Optional[models.Programme]:
+    """Programme par ID, ou None."""
     return (
         db.query(models.Programme)
         .filter(models.Programme.id == programme_id)
@@ -15,7 +26,17 @@ def get_programme(db: Session, programme_id: int):
     )
 
 
-def create_programme(db: Session, data: schemas.ProgrammeCreate):
+def get_programme_by_code(db: Session, code: str) -> Optional[models.Programme]:
+    """Programme par codeProgramme."""
+    return (
+        db.query(models.Programme)
+        .filter(models.Programme.codeProgramme == code)
+        .first()
+    )
+
+
+def create_programme(db: Session, data: schemas.ProgrammeCreate) -> models.Programme:
+    """Création d’un programme."""
     programme = models.Programme(**data.model_dump())
     db.add(programme)
     db.commit()
@@ -23,36 +44,108 @@ def create_programme(db: Session, data: schemas.ProgrammeCreate):
     return programme
 
 
-def update_programme(db: Session):
-    pass
+def update_programme(
+    db: Session,
+    programme_id: int,
+    data: schemas.ProgrammeUpdate,
+) -> Optional[models.Programme]:
+    """Mise à jour d’un programme (retourne None si non trouvé)."""
+    programme = get_programme(db, programme_id)
+    if not programme:
+        return None
 
-def delete_programme(db: Session, programme_id: int):
-    pass
+    update_data = data.model_dump(exclude_unset=True)
+    for field, value in update_data.items():
+        setattr(programme, field, value)
+
+    db.commit()
+    db.refresh(programme)
+    return programme
 
 
-# ------------ Course ------------
+def delete_programme(db: Session, programme_id: int) -> bool:
+    """Suppression d’un programme (True si supprimé, False sinon)."""
+    programme = get_programme(db, programme_id)
+    if not programme:
+        return False
 
-def get_cours(db: Session):
-    return db.query(models.Cours).all()
+    db.delete(programme)
+    db.commit()
+    return True
 
 
-def get_cours(db: Session, cours_id: int):
+# ======================= COURS ========================
+
+def get_courses(db: Session, skip: int = 0, limit: int = 100) -> List[models.Cours]:
+    """Liste paginée des cours."""
     return (
         db.query(models.Cours)
-        .filter(models.Cours.id == cours_id)
+        .offset(skip)
+        .limit(limit)
+        .all()
+    )
+
+
+def get_course(db: Session, course_id: int) -> Optional[models.Cours]:
+    """Cours par ID, ou None."""
+    return (
+        db.query(models.Cours)
+        .filter(models.Cours.id == course_id)
+        .first()
+    )
+
+def get_course_by_code(db: Session, code: str) -> Optional[models.Cours]:
+    """Cours par codeCours (pour vérifier les doublons)."""
+    return (
+        db.query(models.Cours)
+        .filter(models.Cours.codeCours == code)
         .first()
     )
 
 
-def create_cours(db: Session, data: schemas.CoursCreate):
-    course = models.Course(**data.model_dump())
+def get_courses_by_programme(db: Session, programme_id: int) -> List[models.Cours]:
+    """Tous les cours d’un programme."""
+    return (
+        db.query(models.Cours)
+        .filter(models.Cours.programme_id == programme_id)
+        .all()
+    )
+
+
+def create_course(db: Session, data: schemas.CoursCreate) -> models.Cours:
+    """Création d’un cours."""
+    course = models.Cours(**data.model_dump())
     db.add(course)
     db.commit()
     db.refresh(course)
     return course
 
-def update_cours(db: Session):
-    pass
 
-def delete_cours(db: Session, cours_id: int):
-    pass
+def update_course(
+    db: Session,
+    course_id: int,
+    data: schemas.CoursUpdate,
+) -> Optional[models.Cours]:
+    """Mise à jour d’un cours (retourne None si non trouvé)."""
+    course = get_course(db, course_id)
+    if not course:
+        return None
+
+    update_data = data.model_dump(exclude_unset=True)
+    for field, value in update_data.items():
+        setattr(course, field, value)
+
+    db.commit()
+    db.refresh(course)
+    return course
+
+
+def delete_course(db: Session, course_id: int) -> bool:
+    """Suppression d’un cours."""
+    course = get_course(db, course_id)
+    if not course:
+        return False
+
+    db.delete(course)
+    db.commit()
+    return True

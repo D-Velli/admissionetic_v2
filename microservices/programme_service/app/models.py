@@ -1,5 +1,6 @@
 from sqlalchemy import Column, Integer, String, Text, ForeignKey, Interval, DateTime, Numeric, Enum as SQLEnum
 from sqlalchemy.orm import relationship
+from sqlalchemy.sql import func
 from .database import Base
 from enum import Enum
 
@@ -18,7 +19,7 @@ class Programme(Base):
     descProgramme = Column(Text, nullable=True)
     publicCible = Column(Text, nullable=True)
     dureeProgramme = Column(Interval, nullable=True)
-    dateCreation = Column(DateTime(timezone=True))
+    dateCreation = Column(DateTime(timezone=True), default=func.now())
     prixProgramme = Column(Numeric(5, 2), nullable=True)
     status = Column(
         SQLEnum(StatusEnum, name="status_enum"),
@@ -26,7 +27,7 @@ class Programme(Base):
         default=StatusEnum.DISPONIBLE       
     )
 
-    courses = relationship("Cours", back_populates="programme", cascade="all, delete-orphan")
+    cours = relationship("Cours", back_populates="programme", cascade="all, delete-orphan")
 
 
 class Cours(Base):
@@ -36,7 +37,7 @@ class Cours(Base):
     codeCours = Column(String(20), unique=True, index=True, nullable=False)
     titreCours = Column(String(255), nullable=False)
     prixCours = Column(Numeric(5, 2), nullable=True)
-    dateCreation = Column(DateTime(timezone=True))
+    dateCreation = Column(DateTime(timezone=True), default=func.now())
 
 
     programme_id = Column(Integer, ForeignKey("programmes.id"), nullable=False)
