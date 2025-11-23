@@ -1,0 +1,31 @@
+version: "3.9"
+
+services:
+  db:
+    image: postgres:16
+    container_name: etic_programme_db
+    environment:
+      POSTGRES_DB: etic_programme_db
+      POSTGRES_USER: admission_etic_user
+      POSTGRES_PASSWORD: EticAdminUser123
+    ports:
+      - "5433:5432" # optionnel, si tu veux accéder à la DB depuis l'hôte
+    volumes:
+      - programme_pg_data:/var/lib/postgresql/data
+
+  programme_service:
+    build: .
+    container_name: etic_programme_service
+    depends_on:
+      - db
+    environment:
+      # IMPORTANT : host = "db" (le nom du service juste au-dessus)
+      DATABASE_URL: postgresql+psycopg2://admission_etic_user:EticAdminUser123@db:5432/etic_programme_db
+    ports:
+      - "8001:8000" # http://localhost:8001/docs
+    # si tu veux hot-reload en dev (optionnel)
+    # volumes:
+    #   - ./app:/app/app
+
+volumes:
+  programme_pg_data:
