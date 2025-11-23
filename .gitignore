@@ -1,0 +1,50 @@
+# ---- Python ----
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.so
+
+# Packages / build
+*.egg-info/
+dist/
+build/
+
+# ---- Environnements virtuels ----
+venv/
+venv_*/
+.venv/
+.venv_*
+.envrc
+
+# ---- Config & environnements ----
+.env
+.env.*
+.env_*
+!.env.example
+
+# ---- Logs & runtime ----
+*.log
+*.pid
+*.db
+*.sqlite3
+
+# ---- Tests ----
+.pytest_cache/
+.coverage
+htmlcov/
+
+# ---- IDE / Editors ----
+# VS Code
+.vscode/
+
+# PyCharm / IntelliJ / autres JetBrains
+.idea/
+
+# ---- OS ----
+.DS_Store
+Thumbs.db
+
+# ---- Docker ----
+docker-compose.override.yml
+*.local.yml
