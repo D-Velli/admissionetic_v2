@@ -2,16 +2,17 @@ from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.exceptions import RequestValidationError
+from fastapi.encoders import jsonable_encoder
 from starlette.exceptions import HTTPException as StarletteHTTPException
 from sqlalchemy.exc import IntegrityError
 
 import logging
 
-from .routes import programmes, cours
+from .routes import auth, users
 
 logger = logging.getLogger("uvicorn.error")
 
-app = FastAPI(title="Programme Service")
+app = FastAPI(title="User Service")
 
 
 # ---------- CORS ----------
@@ -33,14 +34,15 @@ app.add_middleware(
 
 # ---------- ROUTERS ----------
 
-app.include_router(programmes.router, prefix="/programmes", tags=["Programmes"])
-app.include_router(cours.router, prefix="/cours", tags=["Cours"])
+app.include_router(auth.router)
+app.include_router(users.router)
 
 
 # --------- DEMARRAGE -----------
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run("app.main:app", host="127.0.0.1", port=8000, reload=True)
+    uvicorn.run("app.main:app", host="127.0.0.1", port=8001, reload=True)
+
 
 # ---------- GESTION GLOBALE DES ERREURS ----------
 
@@ -62,7 +64,7 @@ async def validation_exception_handler(request: Request, exc: RequestValidationE
     )
     return JSONResponse(
         status_code=422,
-        content={"detail": exc.errors()},
+        content=jsonable_encoder({"detail": exc.errors()}),
     )
 
 

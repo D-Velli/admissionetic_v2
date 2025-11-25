@@ -3,7 +3,7 @@ from typing import List
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import IntegrityError
-
+from app.dependencies import get_current_admin
 from app.database import get_db
 from app import schemas, crud
 
@@ -47,7 +47,11 @@ def get_programme_by_code(code_programme: str, db: Session = Depends(get_db)):
     response_model=schemas.ProgrammeRead,
     status_code=status.HTTP_201_CREATED,
 )
-def create_programme(programme: schemas.ProgrammeCreate, db: Session = Depends(get_db)):
+def create_programme(
+    programme: schemas.ProgrammeCreate,
+    db: Session = Depends(get_db),
+    admin: dict = Depends(get_current_admin)
+    ):
     """Créer un programme (avec vérification d'unicité du code)."""
     existing = crud.get_programme_by_code(db, programme.codeProgramme)
     if existing:

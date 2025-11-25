@@ -36,7 +36,7 @@ class ProgrammeUpdate(BaseModel):
 
 
 class ProgrammeInDBBase(ProgrammeBase):
-    # id: int
+    id: int
     dateCreation: datetime | None = None
 
     # permet de lire directement des objets SQLAlchemy
@@ -69,7 +69,7 @@ class CoursUpdate(BaseModel):
 
 
 class CoursInDBBase(CoursBase):
-    # id: int
+    id: int
     dateCreation: datetime | None = None
 
     model_config = ConfigDict(from_attributes=True)
