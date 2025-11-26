@@ -50,7 +50,7 @@ def get_admission(
         raise HTTPException(status_code=404, detail="Admission not found")
 
     is_admin = current_user.get("role") == "ADMIN"
-    if not is_admin and adm.user_id != current_user["sub"]:
+    if not is_admin and adm.user_id != int(current_user["sub"]):
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Accès refusé.",

@@ -2,6 +2,7 @@
 from typing import Optional
 from datetime import datetime
 from pydantic import BaseModel, ConfigDict, model_validator
+from decimal import Decimal
 
 from app.models import TypeAdmissionEnum, StatutAdmissionEnum
 
@@ -11,7 +12,7 @@ class AdmissionBase(BaseModel):
 
     programme_id: Optional[int] = None
     cours_id: Optional[int] = None
-
+    frais_admission: Optional[Decimal] = None
     commentaire: Optional[str] = None
 
 
@@ -48,7 +49,9 @@ class AdmissionCreate(AdmissionBase):
 
 class AdmissionRead(AdmissionBase):
     id: int
-    statut: StatutAdmissionEnum
+    user_id: int
+    status: StatutAdmissionEnum
+    frais_admission: Optional[Decimal] = None
     date_demande: datetime
     date_maj: datetime
 
@@ -56,5 +59,5 @@ class AdmissionRead(AdmissionBase):
 
 
 class AdmissionStatusUpdate(BaseModel):
-    statut: StatutAdmissionEnum
+    status: StatutAdmissionEnum
     commentaire: Optional[str] = None

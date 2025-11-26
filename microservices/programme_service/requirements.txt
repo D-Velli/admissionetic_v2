@@ -9,3 +9,4 @@ python-dotenv
 pytest
 httpx
 python-jose[cryptography]
+redis

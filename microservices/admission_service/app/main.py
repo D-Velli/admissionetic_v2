@@ -5,6 +5,8 @@ from fastapi.exceptions import RequestValidationError
 from fastapi.encoders import jsonable_encoder
 from starlette.exceptions import HTTPException as StarletteHTTPException
 from sqlalchemy.exc import IntegrityError
+from .events.payment_events import start_payment_events_listener
+from contextlib import asynccontextmanager
 
 import logging
 
@@ -12,7 +14,19 @@ from .routes import admissions
 
 logger = logging.getLogger("uvicorn.error")
 
-app = FastAPI(title="Admission Service")
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    logger.info("🚀 Starting REDIS admission_service...")
+
+    # --------- STARTUP ----------
+    start_payment_events_listener()  # <- démarre ton thread Redis
+    # tu peux log ici si tu veux
+    yield
+    # --------- SHUTDOWN ----------
+    # si un jour tu veux arrêter proprement le listener, tu le feras ici
+
+
+app = FastAPI(title="Admission Service", lifespan=lifespan)
 
 
 # ---------- CORS ----------
@@ -41,7 +55,8 @@ app.include_router(admissions.router)
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run("app.main:app", host="127.0.0.1", port=8002, reload=True)
-
+    
+    
 
 # ---------- GESTION GLOBALE DES ERREURS ----------
 

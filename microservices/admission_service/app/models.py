@@ -4,6 +4,7 @@ from sqlalchemy import (
     Integer,
     String,
     Text,
+    Numeric,
     DateTime,
     Enum as SQLEnum,
 )
@@ -20,7 +21,6 @@ class TypeAdmissionEnum(str, Enum):
 class StatutAdmissionEnum(str, Enum):
     EN_ATTENTE = "en_attente"
     ACCEPTEE = "acceptee"
-    REFUSEE = "refusee"
     ANNULEE = "annulee"
 
 
@@ -41,9 +41,10 @@ class Admission(Base):
     # IDs des ressources externes (autres microservices)
     programme_id = Column(Integer, nullable=True, index=True)
     cours_id = Column(Integer, nullable=True, index=True)
+    frais_admission = Column(Numeric(5, 2), nullable=False, default="0.00")
 
     # Infos métier
-    statut = Column(
+    status = Column(
         SQLEnum(StatutAdmissionEnum, name="statut_admission_enum"),
         nullable=False,
         default=StatutAdmissionEnum.EN_ATTENTE,

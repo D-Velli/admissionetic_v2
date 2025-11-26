@@ -1,0 +1,14 @@
+fastapi
+uvicorn
+sqlalchemy
+psycopg2-binary
+pydantic
+pydantic-settings
+alembic
+python-dotenv
+pytest
+httpx
+python-jose[cryptography]
+requests
+stripe
+redis
