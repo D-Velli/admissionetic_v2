@@ -31,7 +31,7 @@ def list_users(
 def get_user_detail(
     user_id: int,
     db: Session = Depends(get_db),
-    admin: models.User = Depends(get_current_admin),
+    # admin: models.User = Depends(get_current_admin),
 ):
     user = crud.get_user(db, user_id=user_id)
     if not user:

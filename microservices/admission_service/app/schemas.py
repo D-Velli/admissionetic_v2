@@ -9,7 +9,6 @@ from app.models import TypeAdmissionEnum, StatutAdmissionEnum
 
 class AdmissionBase(BaseModel):
     type_admission: TypeAdmissionEnum
-
     programme_id: Optional[int] = None
     cours_id: Optional[int] = None
     frais_admission: Optional[Decimal] = None
