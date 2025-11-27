@@ -4,6 +4,7 @@ from sqlalchemy.orm import Session
 from app import crud, schemas, models
 from app.database import get_db     
 from app.dependencies import get_current_user, get_current_admin
+from app.core.security import verify_internal_token
 
 router = APIRouter(prefix="/users", tags=["users"])
 
@@ -32,6 +33,7 @@ def get_user_detail(
     user_id: int,
     db: Session = Depends(get_db),
     # admin: models.User = Depends(get_current_admin),
+    dependencies=[Depends(verify_internal_token)],
 ):
     user = crud.get_user(db, user_id=user_id)
     if not user:

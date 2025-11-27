@@ -20,8 +20,8 @@ def _handle_payment_succeeded(event: dict) -> None:
     amount = event.get("amount")
     currency = event.get("currency", "CAD")
 
-    email = get_user_details(user_id)
-    print(f"Email : {email}")
+    user = get_user_details(user_id)
+    email = user["email"]
     if not email:
         logger.warning("Impossible de trouver l'email pour user_id=%s", user_id)
         return
@@ -29,7 +29,7 @@ def _handle_payment_succeeded(event: dict) -> None:
     subject = "Votre paiement d'admission a été reçu"
     html_body = f"""
     <h1>Paiement reçu ✅</h1>
-    <p>Bonjour,</p>
+    <p>Bonjour, {user["prenom"]} {user["nom"]}</p>
     <p>Nous avons bien reçu votre paiement pour l'admission #{admission_id}.</p>
     <p>Montant : <b>{amount} {currency.upper()}</b></p>
     <p>Merci de votre confiance.</p>
@@ -43,7 +43,8 @@ def _handle_payment_failed(event: dict) -> None:
     amount = event.get("amount")
     currency = event.get("currency", "CAD")
 
-    email = get_user_email(user_id)
+    user = get_user_details(user_id)
+    email = user["email"]
     if not email:
         logger.warning("Impossible de trouver l'email pour user_id=%s", user_id)
         return
@@ -51,7 +52,7 @@ def _handle_payment_failed(event: dict) -> None:
     subject = "Échec de votre paiement d'admission"
     html_body = f"""
     <h1>Paiement échoué ❌</h1>
-    <p>Bonjour,</p>
+    <p>Bonjour, {user["prenom"]} {user["nom"]}</p>
     <p>Votre tentative de paiement pour l'admission #{admission_id} a échoué.</p>
     <p>Montant : <b>{amount} {currency.upper()}</b></p>
     <p>Merci de réessayer ou de contacter le support.</p>
