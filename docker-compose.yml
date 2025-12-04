@@ -1,0 +1,149 @@
+services:
+  redis:
+    image: redis:7-alpine
+    container_name: redis
+    environment:
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+    ports:
+      - "6379:6379" # pour accéder depuis ta machine (optionnel mais pratique)
+    volumes:
+      - redis_data:/data
+    restart: unless-stopped
+
+  # -------- PROGRAMME --------
+  programme_db:
+    image: postgres:16
+    container_name: programme_db
+    environment:
+      POSTGRES_DB: ${PROGRAMME_DB_NAME}
+      POSTGRES_USER: ${PROGRAMME_DB_USER}
+      POSTGRES_PASSWORD: ${PROGRAMME_DB_PASSWORD}
+    volumes:
+      - programme_db_data:/var/lib/postgresql/data
+    ports:
+      - "5433:5432"
+
+  programme_service:
+    build:
+      context: ./microservices/programme_service
+    container_name: programme_service
+    env_file:
+      - ./microservices/programme_service/.env_programme
+    environment:
+      DB_NAME: ${PROGRAMME_DB_NAME}
+      DB_USER: ${PROGRAMME_DB_USER}
+      DB_PASSWORD: ${PROGRAMME_DB_PASSWORD}
+      DB_HOST: programme_db
+      DB_PORT: 5432
+    depends_on:
+      - programme_db
+    ports:
+      - "8001:8000"
+
+  # -------- USER --------
+  user_db:
+    image: postgres:16
+    container_name: user_db
+    environment:
+      POSTGRES_DB: ${USER_DB_NAME}
+      POSTGRES_USER: ${USER_DB_USER}
+      POSTGRES_PASSWORD: ${USER_DB_PASSWORD}
+    volumes:
+      - user_db_data:/var/lib/postgresql/data
+    ports:
+      - "5434:5432"
+
+  user_service:
+    build:
+      context: ./microservices/user_service
+    container_name: user_service
+    env_file:
+      - ./microservices/user_service/.env_user
+    environment:
+      DB_NAME: ${USER_DB_NAME}
+      DB_USER: ${USER_DB_USER}
+      DB_PASSWORD: ${USER_DB_PASSWORD}
+      DB_HOST: user_db
+      DB_PORT: 5432
+    depends_on:
+      - user_db
+    ports:
+      - "8002:8000"
+
+  # -------- ADMISSION --------
+  admission_db:
+    image: postgres:16
+    container_name: admission_db
+    environment:
+      POSTGRES_DB: ${ADMISSION_DB_NAME}
+      POSTGRES_USER: ${ADMISSION_DB_USER}
+      POSTGRES_PASSWORD: ${ADMISSION_DB_PASSWORD}
+    volumes:
+      - admission_db_data:/var/lib/postgresql/data
+    ports:
+      - "5435:5432"
+
+  admission_service:
+    build:
+      context: ./microservices/admission_service
+    container_name: admission_service
+    env_file:
+      - ./microservices/admission_service/.env_admission
+    environment:
+      DB_NAME: ${ADMISSION_DB_NAME}
+      DB_USER: ${ADMISSION_DB_USER}
+      DB_PASSWORD: ${ADMISSION_DB_PASSWORD}
+      DB_HOST: admission_db
+      DB_PORT: 5432
+      PROGRAMME_SERVICE_URL: http://programme_service:8000
+      USER_SERVICE_URL: http://user_service:8000
+      REDIS_URL: redis://redis:6379/0
+    depends_on:
+      - admission_db
+      - programme_service
+      - user_service
+      - redis
+    ports:
+      - "8003:8000"
+
+  # -------- PAYEMENT --------
+  payement_db:
+    image: postgres:16
+    container_name: payement_db
+    environment:
+      POSTGRES_DB: ${PAYEMENT_DB_NAME}
+      POSTGRES_USER: ${PAYEMENT_DB_USER}
+      POSTGRES_PASSWORD: ${PAYEMENT_DB_PASSWORD}
+    volumes:
+      - payement_db_data:/var/lib/postgresql/data
+    ports:
+      - "5436:5432"
+
+  payement_service:
+    build:
+      context: ./microservices/payement_service
+    container_name: payement_service
+    env_file:
+      - ./microservices/payement_service/.env_payement
+    environment:
+      DB_NAME: ${PAYEMENT_DB_NAME}
+      DB_USER: ${PAYEMENT_DB_USER}
+      DB_PASSWORD: ${PAYEMENT_DB_PASSWORD}
+      DB_HOST: payement_db
+      DB_PORT: 5432
+      ADMISSION_SERVICE_URL: http://admission_service:8000
+      STRIPE_WEBHOOK_SECRET: ${STRIPE_WEBHOOK_SECRET}
+      STRIPE_SECRET_KEY: ${STRIPE_SECRET_KEY}
+    depends_on:
+      - payement_db
+      - admission_service
+    ports:
+      - "8004:8000"
+
+volumes:
+  programme_db_data:
+  user_db_data:
+  admission_db_data:
+  payement_db_data:
+  redis_data:

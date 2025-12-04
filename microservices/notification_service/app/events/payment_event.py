@@ -6,7 +6,7 @@ from redis import Redis
 
 from app.core.config import REDIS_URL
 from app.services.user_client import get_user_details
-from app.services.email import send_email
+from app.services.email import send_email, render_template
 
 logger = logging.getLogger(__name__)
 
@@ -27,13 +27,15 @@ def _handle_payment_succeeded(event: dict) -> None:
         return
 
     subject = "Votre paiement d'admission a été reçu"
-    html_body = f"""
-    <h1>Paiement reçu ✅</h1>
-    <p>Bonjour, {user["prenom"]} {user["nom"]}</p>
-    <p>Nous avons bien reçu votre paiement pour l'admission #{admission_id}.</p>
-    <p>Montant : <b>{amount} {currency.upper()}</b></p>
-    <p>Merci de votre confiance.</p>
-    """
+    html_body = render_template(
+        "payment_succes.html",
+        prenom=user["prenom"],
+        nom=user["nom"],
+        admission_id=admission_id,
+        amount=amount,
+        currency=currency,
+        # frontend_url=FRONTEND_URL,
+    )
     send_email(email, subject, html_body)
 
 

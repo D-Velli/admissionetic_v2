@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Paiement reçu</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        background-color: #f5f5f5;
+        padding: 20px;
+      }
+      .card {
+        max-width: 600px;
+        margin: 0 auto;
+        background: #ffffff;
+        border-radius: 8px;
+        padding: 24px;
+        border: 1px solid #e0e0e0;
+      }
+      .title {
+        font-size: 20px;
+        font-weight: bold;
+        margin-bottom: 12px;
+      }
+      .amount {
+        font-size: 18px;
+        font-weight: bold;
+        color: #228b22;
+      }
+      .footer {
+        font-size: 12px;
+        color: #777;
+        margin-top: 24px;
+      }
+      a.button {
+        display: inline-block;
+        padding: 10px 16px;
+        background: #2563eb;
+        color: #ffffff !important;
+        text-decoration: none;
+        border-radius: 4px;
+        font-size: 14px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="card">
+      <div class="title">Paiement reçu ✅</div>
+      <p>Bonjour {{ user_name or "cher utilisateur" }},</p>
+      <p>
+        Nous avons bien reçu votre paiement pour l'admission
+        <strong>#{{ admission_id }}</strong>.
+      </p>
+      <p class="amount">Montant : {{ amount }} {{ currency|upper }}</p>
+
+      {% if frontend_url %}
+      <p>
+        Vous pouvez consulter votre dossier en cliquant ici :
+        <br />
+        <a
+          class="button"
+          href="{{ frontend_url }}/admissions/{{ admission_id }}"
+        >
+          Voir mon admission
+        </a>
+      </p>
+      {% endif %}
+
+      <p class="footer">
+        Cet email a été envoyé automatiquement, merci de ne pas y répondre.
+      </p>
+    </div>
+  </body>
+</html>

@@ -2,9 +2,19 @@ import smtplib
 from email.message import EmailMessage
 import logging
 
-from app.core.config import SMTP_HOST, SMTP_PORT, SMTP_USERNAME, SMTP_PASSWORD, EMAIL_FROM
+from app.core.config import SMTP_HOST, SMTP_PORT, SMTP_USERNAME, SMTP_PASSWORD, EMAIL_FROM, BASE_DIR
+from jinja2 import Environment, FileSystemLoader, select_autoescape
 
 logger = logging.getLogger(__name__)
+
+env = Environment(
+    loader=FileSystemLoader(BASE_DIR / "templates"),
+    autoescape=select_autoescape(["html", "xml"]),
+)
+
+def render_template(template_name: str, **context) -> str:
+    template = env.get_template(template_name)
+    return template.render(**context)
 
 
 def send_email(to_email: str, subject: str, html_body: str, text_body: str | None = None) -> None:
